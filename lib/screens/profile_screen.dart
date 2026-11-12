@@ -1,3 +1,4 @@
+import '../service/user_storage.dart';
 import 'package:flutter/material.dart';
 import 'settings_screen.dart';
 
@@ -11,6 +12,24 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   String userName = 'Summer';
   String bio = 'Exploring the world, one quest at a time ✨';
+
+@override
+void initState() {
+  super.initState();
+  _loadProfile();
+}
+
+Future<void> _loadProfile() async {
+  final savedName = await UserStorage.getUsername();
+  final savedBio = await UserStorage.getBio();
+
+  if (!mounted) return;
+
+  setState(() {
+    userName = savedName;
+    bio = savedBio;
+  });
+}
 
   // Demo data: replace with actual quest data later.
   final int level = 12;
@@ -67,12 +86,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
 
-    if (updated == true && mounted) {
-      setState(() {
-        userName = nameController.text.trim();
-        bio = bioController.text.trim();
-      });
-    }
+
+if (updated == true && mounted) {
+  final newName = nameController.text.trim();
+  final newBio = bioController.text.trim();
+
+  await UserStorage.saveUsername(newName);
+  await UserStorage.saveBio(newBio);
+
+  if (!mounted) return;
+
+  setState(() {
+    userName = newName;
+    bio = newBio;
+  });
+}
 
     nameController.dispose();
     bioController.dispose();
