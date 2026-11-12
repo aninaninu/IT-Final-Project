@@ -1,4 +1,6 @@
+
 import 'package:flutter/material.dart';
+import '../service/user_storage.dart';
 import '../theme/app_colours.dart';
 import 'completed_quest_screen.dart';
 import 'quest_selection_screen.dart';
@@ -13,12 +15,36 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String userName = 'Summer';
   bool isSoloMode = true;
   int points = 980;
 
-  void _openScreen(Widget screen) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => screen));
+  @override
+  void initState() {
+    super.initState();
+    _loadUsername();
   }
+
+  Future<void> _loadUsername() async {
+    final savedName = await UserStorage.getUsername();
+
+    if (!mounted) return;
+
+    setState(() {
+      userName = savedName;
+    });
+  }
+
+  Future<void> _openScreen(Widget screen) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => screen),
+    );
+
+    if (!mounted) return;
+    await _loadUsername();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -32,22 +58,22 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      CircleAvatar(
+                      const CircleAvatar(
                         backgroundColor: Colors.grey,
                         radius: 16,
                         child: Icon(Icons.person, color: Colors.white),
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Hi, Summer!',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            'Hi, $userName!',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          Text(
+                          const Text(
                             'Ready for a quest today?',
                             style: TextStyle(fontSize: 11, color: Colors.grey),
                           ),
